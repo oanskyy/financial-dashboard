@@ -2,6 +2,8 @@
 
 import { z } from "zod"
 import postgres from "postgres"
+import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" })
 
@@ -27,6 +29,8 @@ export async function createInvoice(formData: FormData) {
 
 	await sql`
     INSERT INTO invoices (customer_id, amount, status, date)
-    VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-  `
+    VALUES (${customerId}, ${amountInCents}, ${status}, ${date})`
+
+	revalidatePath("/dashboard/invoices")
+	redirect("/dashboard/invoices")
 }
